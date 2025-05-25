@@ -1,0 +1,78 @@
+// Include necessary libraries
+#include <Wire.h>
+#include <OneWire.h>
+#include <DHT.h>
+
+//#include <DallasTemperature.h>
+
+// Define the pins for temperature sensors
+#define DHT_PIN_OUT A0
+#define DHT_PIN_IN A1
+
+// Define the pin for the LED
+#define LED_PIN 9
+
+// Create instances of the temperature sensors
+DHT dhtout(DHT_PIN_OUT, DHT11);
+DHT dhtin(DHT_PIN_IN, DHT11);
+//OneWire outsideTempOneWire(OUTSIDE_TEMP_PIN);
+//DallasTemperature outsideTempSensor(&outsideTempOneWire);
+
+//OneWire insideTempOneWire(INSIDE_TEMP_PIN);
+//DallasTemperature insideTempSensor(&insideTempOneWire);
+
+void setup() 
+{
+  // Start serial communication
+  Serial.begin(9600);
+
+  // Initialize temperature sensors
+  dhtout.begin();
+  dhtin.begin();
+
+  // Set LED pin as an output
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  // Read temperatures from sensors
+  float outsideTemp = dhtout.readTemperature();
+  float insideTemp = dhtin.readTemperature();
+
+  // Print temperatures for debugging
+  Serial.print("Outside Temp: ");
+  Serial.print(outsideTemp);
+  Serial.print("   Inside Temp: ");
+  Serial.println(insideTemp);
+
+  // Check temperature conditions and adjust LED brightness
+  if (outsideTemp < 15 && insideTemp < 15) 
+  {
+    while(insideTemp < 20)
+    {
+    analogWrite(LED_PIN, 255);
+    }
+  } 
+  if (outsideTemp < 20 && insideTemp >= 20 && insideTemp < 23) 
+  {
+    while (insideTemp=23)
+    {
+    analogWrite(LED_PIN, 120);
+    }
+  } 
+  if (outsideTemp < 20 && insideTemp >= 23) 
+  {
+    while (insideTemp < 27)
+    {
+    analogWrite(LED_PIN, 35);
+    }
+  } 
+  else 
+  {
+    analogWrite(LED_PIN, 0);
+  }
+
+  // Delay for stability
+  delay(1000);
+}
+
