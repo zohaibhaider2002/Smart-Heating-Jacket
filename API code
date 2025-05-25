@@ -1,0 +1,50 @@
+#include <ArduinoHttpClient.h>
+#include <ArduinoJson.h>
+
+// Replace these values with your OpenWeatherMap API key and city ID
+const char* apiKey = "YOUR_API_KEY";
+const char* cityId = "PK/1174872"; // Islamabad, Pakistan
+
+// Replace with your Wi-Fi credentials
+const char* ssid = "your-ssid";
+const char* password = "your-password";
+
+WiFiClient wifiClient;
+HttpClient client = HttpClient(wifiClient, "api.openweathermap.org", 80);
+
+void setup() {
+  Serial.begin(115200);
+
+  // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    // Make a request to OpenWeatherMap API
+    String url = "/data/2.5/weather?id=" + String(cityId) + "&appid=" + String(apiKey);
+    client.get(url);
+    
+    // Read and parse the response
+    String response = client.responseBody();
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, response);
+
+    // Extract temperature data
+    float temperature = doc["main"]["temp"];
+    Serial.print("Temperature in Islamabad: ");
+    Serial.println(temperature);
+
+    // Wait before making the next request
+    delay(60000); // 1 minute
+  }
+  else {
+    Serial.println("Not connected to WiFi");
+    delay(5000); // Retry after 5 seconds
+  }
+}
